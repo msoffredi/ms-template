@@ -7,6 +7,7 @@ Parameters:
     DeploymentPrefix:
         Type: String
         Description: Prefix to be used in multiple places to differentiate different unique deployments
+        Default: ''
 
 Globals:
     Function:
@@ -81,6 +82,31 @@ Resources:
     #         KeySchema:
     #             - AttributeName: id
     #               KeyType: HASH
+
+    APIDomainName:
+        Type: AWS::ApiGateway::DomainName
+        Properties:
+            CertificateArn: arn:aws:acm:us-east-1:653284769887:certificate/a343fc90-7ad2-4761-8331-ddb604c99a1d
+            DomainName: !Sub 'sample-api${DeploymentPrefix}.soffredi.org'
+
+    APIBasePathMapping:
+        Type: AWS::ApiGateway::BasePathMapping
+        Properties:
+            DomainName: !Ref APIDomainName
+            RestApiId: !Ref ServerlessRestApi
+            Stage: Prod
+
+    APIDomain:
+        Type: AWS::Route53::RecordSetGroup
+        Properties:
+            HostedZoneName: soffredi.org.
+            RecordSets:
+                - Name: !Sub 'sample-api${DeploymentPrefix}.soffredi.org'
+                  Type: A
+                  AliasTarget:
+                      EvaluateTargetHealth: false
+                      DNSName: !GetAtt APIDomainName.DistributionDomainName
+                      HostedZoneId: !GetAtt APIDomainName.DistributionHostedZoneId
 
 Outputs:
     SampleAPIBaseURL:

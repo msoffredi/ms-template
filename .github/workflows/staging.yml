@@ -22,8 +22,8 @@ jobs:
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   aws-region: ${{ secrets.AWS_REGION }}
 
-            - name: Copying environment-specific files...
-              run: cp -fr .deploy/staging/. ./
+            # - name: Copying environment-specific files...
+            #   run: cp -fr .deploy/staging/. ./
 
             - name: Installing Dependencies...
               run: npm ci
@@ -40,4 +40,5 @@ jobs:
                       --s3-bucket ms-template-deploy-staging \
                       --s3-prefix ms-template \
                       --capabilities CAPABILITY_IAM \
-                      --region ${{ secrets.AWS_REGION }}
+                      --region ${{ secrets.AWS_REGION }} \
+                      --parameter-overrides DeploymentPrefix=-staging
