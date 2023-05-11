@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Template microservice using API Gateway and lambdas
+Transform:
+    - AWS::Serverless-2016-10-31
+
+Globals:
+    Function:
+        Layers:
+            - !Ref RuntimeDependenciesLayer
+        # Environment:
+        #     Variables:
+        #         ENV_VAR_NAME_1: 'value'
+        Runtime: nodejs18.x
+        MemorySize: 128
+        Timeout: 100
+    Api:
+        # Auth:
+        #     AddDefaultAuthorizerToCorsPreflight: false
+        #     Authorizers:
+        #         CustomAuthorizer:
+        #             UserPoolArn: !Ref CognitoUserPoolArn
+        #             AuthType: COGNITO_USER_POOLS
+        #     DefaultAuthorizer: CustomAuthorizer
+        Cors:
+            AllowMethods: "'GET,POST,OPTIONS'"
+            AllowHeaders: "'Content-Type,Authorization,Access-Control-Allow-Methods,Access-Control-Allow-Origin'"
+            AllowOrigin: "'*'"
+
+Resources:
+    MsSampleAPIFunction:
+        Type: AWS::Serverless::Function
+        Metadata:
+            BuildMethod: makefile
+        Properties:
+            FunctionName: ms-sample-api-staging
+            Handler: dist/handlers/sample-api.handler
+            Description: Sample API handler lambda
+            # Environment:
+            #     Variables:
+            #         ENV_VAR_NAME_2: 'value'
+            # Policies:
+            #     - DynamoDBCrudPolicy:
+            #           TableName: !Ref SampleTable
+            # - Statement:
+            #       - Effect: Allow
+            #         Resource: 'arn:aws:...'
+            #         Action:
+            #             - service:Action
+            Events:
+                Healthcheck:
+                    Type: Api
+                    Properties:
+                        Path: /healthcheck
+                        # Auth:
+                        #     Authorizer: NONE
+                        Method: get
+
+    RuntimeDependenciesLayer:
+        Type: AWS::Serverless::LayerVersion
+        Metadata:
+            BuildMethod: makefile
+        Properties:
+            LayerName: ms-sample-dependencies-staging
+            Description: Runtime dependencies for Lambdas
+            ContentUri: ./
+            RetentionPolicy: Retain
+
+    # SampleTable:
+    #     Type: AWS::DynamoDB::Table
+    #     Properties:
+    #         BillingMode: PAY_PER_REQUEST
+    #         TableName: sample-staging
+    #         AttributeDefinitions:
+    #             - AttributeName: id
+    #               AttributeType: S
+    #         KeySchema:
+    #             - AttributeName: id
+    #               KeyType: HASH
+
+Outputs:
+    SampleAPIBaseURL:
+        Description: 'Sample API base URL'
+        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod'
