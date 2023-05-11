@@ -51,8 +51,8 @@ Resources:
                     Type: Api
                     Properties:
                         Path: /healthcheck
-                        Auth:
-                            Authorizer: NONE
+                        # Auth:
+                        #     Authorizer: NONE
                         Method: get
 
     RuntimeDependenciesLayer:

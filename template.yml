@@ -37,7 +37,7 @@ Resources:
         Metadata:
             BuildMethod: makefile
         Properties:
-            FunctionName: !Sub 'ms-sample-api-${DeploymentPrefix}'
+            FunctionName: !Sub 'ms-sample-api${DeploymentPrefix}'
             Handler: dist/handlers/sample-api.handler
             Description: Sample API handler lambda
             # Environment:
@@ -56,8 +56,8 @@ Resources:
                     Type: Api
                     Properties:
                         Path: /healthcheck
-                        Auth:
-                            Authorizer: NONE
+                        # Auth:
+                        #     Authorizer: NONE
                         Method: get
 
     RuntimeDependenciesLayer:
@@ -65,7 +65,7 @@ Resources:
         Metadata:
             BuildMethod: makefile
         Properties:
-            LayerName: !Sub 'ms-sample-dependencies-${DeploymentPrefix}'
+            LayerName: !Sub 'ms-sample-dependencies${DeploymentPrefix}'
             Description: Runtime dependencies for Lambdas
             ContentUri: ./
             RetentionPolicy: Retain
@@ -74,7 +74,7 @@ Resources:
     #     Type: AWS::DynamoDB::Table
     #     Properties:
     #         BillingMode: PAY_PER_REQUEST
-    #         TableName: !Sub 'sample-${DeploymentPrefix}'
+    #         TableName: !Sub 'sample${DeploymentPrefix}'
     #         AttributeDefinitions:
     #             - AttributeName: id
     #               AttributeType: S
