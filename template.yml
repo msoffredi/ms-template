@@ -23,10 +23,16 @@ Globals:
         # Auth:
         #     AddDefaultAuthorizerToCorsPreflight: false
         #     Authorizers:
-        #         CustomAuthorizer:
+        #         CognitoAuthorizer:
         #             UserPoolArn: !Ref CognitoUserPoolArn
         #             AuthType: COGNITO_USER_POOLS
-        #     DefaultAuthorizer: CustomAuthorizer
+        #         Auth0Authorizer:
+        #             IdentitySource: $request.header.Authorization
+        #             JwtConfiguration:
+        #                 audience:
+        #                     - audience1
+        #                 issuer: "https://www.example.com/v1/connect/oidc"
+        #     DefaultAuthorizer: Auth0Authorizer
         Cors:
             AllowMethods: "'GET,POST,OPTIONS'"
             AllowHeaders: "'Content-Type,Authorization,Access-Control-Allow-Methods,Access-Control-Allow-Origin'"
@@ -57,9 +63,14 @@ Resources:
                     Type: Api
                     Properties:
                         Path: /healthcheck
-                        # Auth:
-                        #     Authorizer: NONE
                         Method: get
+                # Private:
+                #     Type: Api
+                #     Properties:
+                #         Path: /private
+                #         Auth:
+                #             Authorizer: Auth0Authorizer
+                #         Method: get
 
     RuntimeDependenciesLayer:
         Type: AWS::Serverless::LayerVersion
