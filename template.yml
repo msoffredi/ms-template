@@ -58,6 +58,10 @@ Resources:
             #         Resource: 'arn:aws:...'
             #         Action:
             #             - service:Action
+            #       - Effect: Allow
+            #         Resource: !GetAtt S3Bucket.Arn
+            #         Action:
+            #             - s3:PutObject
             Events:
                 Healthcheck:
                     Type: Api
@@ -118,6 +122,35 @@ Resources:
                       EvaluateTargetHealth: false
                       DNSName: !GetAtt APIDomainName.DistributionDomainName
                       HostedZoneId: !GetAtt APIDomainName.DistributionHostedZoneId
+
+    # S3Bucket:
+    #     Type: AWS::S3::Bucket
+    #     Properties:
+    #         BucketName: 'ms-template-bucket'
+
+    # S3BucketPolicy:
+    #     Type: AWS::S3::BucketPolicy
+    #     Properties:
+    #         Bucket: !Ref S3Bucket
+    #         PolicyDocument:
+    #             Version: 2012-10-17
+    #             Statement:
+    #                 - Action:
+    #                       - 's3:PutObject'
+    #                   Effect: Allow
+    #                   Resource: !Sub
+    #                       - '${BucketArn}/*'
+    #                       - { BucketArn: !GetAtt S3Bucket.Arn }
+    #                   Principal:
+    #                       AWS: !GetAtt MsSampleAPIFunction.Arn
+    #                 # To allow public access to the bucket (use carefully)
+    #                 - Action:
+    #                       - 's3:GetObject'
+    #                   Effect: Allow
+    #                   Resource: !Sub
+    #                       - '${BucketArn}/*'
+    #                       - { BucketArn: !GetAtt S3Bucket.Arn }
+    #                   Principal: '*'
 
 Outputs:
     SampleAPIBaseURL:
